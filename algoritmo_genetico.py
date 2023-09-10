@@ -1,5 +1,5 @@
 from typing import List, Callable
-from random import random, randint, shuffle
+import random
 from math import cos, radians
 import time
 
@@ -26,19 +26,18 @@ def gerar_populacao_inicial(lista: List[list], numero_individuo: int) -> List[Li
             # Verifica se o tamanho da população desejada foi alcançado.
             if len(lista_aux) == numero_individuo:
                 # Embaralha a ordem dos indivíduos para aumentar a diversidade.
-                shuffle(lista_aux)
+                random.shuffle(lista_aux)
                 return lista_aux  # Retorna a população gerada.
 
     # Embaralha a ordem dos indivíduos para aumentar a diversidade.
-    shuffle(lista_aux)
+    random.shuffle(lista_aux)
 
     # Retorna a população gerada.
     return lista_aux
 
-
 def roleta(lista: list[float]) -> int:
     # Gera um valor aleatório entre 0 e a soma de todos os valores da lista.
-    rand = random() * sum(lista)
+    rand = random.random() * sum(lista)
 
     soma = 0
     for i, apt in enumerate(lista):
@@ -96,8 +95,8 @@ def escala_apt(lista: List[float]) -> List[float]:
 
 
 def torneio(aptidao: List[float]) -> int:
-    pai1 = randint(0, len(aptidao) - 1)
-    pai2 = randint(0, len(aptidao) - 1)
+    pai1 = random.randint(0, len(aptidao) - 1)
+    pai2 = random.randint(0, len(aptidao) - 1)
     return pai1 if aptidao[pai1] > aptidao[pai2] else pai2
 
 
@@ -105,13 +104,13 @@ def mutacao_genes(lista_populacao: list[list[object]], taxa_mutacao: float):
     # Iterar sobre cada indivíduo na população
     for i, elemento in enumerate(lista_populacao):
         # Verificar se a mutação deve ocorrer com base na taxa de mutação
-        if random() <= taxa_mutacao:
+        if random.random() <= taxa_mutacao:
             # Gerar dois índices aleatórios diferentes dentro da faixa válida
-            a, b = randint(0, len(elemento) - 1), randint(0, len(elemento) - 1)
+            a, b = random.randint(0, len(elemento) - 1), random.randint(0, len(elemento) - 1)
 
             # Garantir que 'a' e 'b' sejam índices diferentes
             while a == b:
-                b = randint(0, len(elemento) - 1)
+                b = random.randint(0, len(elemento) - 1)
 
             # Trocar os elementos nas posições 'a' e 'b' dentro do indivíduo
             lista_populacao[i][a], lista_populacao[i][b] = lista_populacao[i][b], lista_populacao[i][a]
@@ -156,8 +155,8 @@ def selecao_pais(lista_populacao: List[list[list]], aptidao: List[float], sel_fu
 
 def PMX(father1, father2):
     # Escolhe dois pontos de corte aleatórios
-    cutpoint1 = randint(0, len(father1) - 1)
-    cutpoint2 = randint(0, len(father1) - 1)
+    cutpoint1 = random.randint(0, len(father1) - 1)
+    cutpoint2 = random.randint(0, len(father1) - 1)
 
     # Garante que cutpoint1 é menor que cutpoint2
     if cutpoint1 > cutpoint2:
@@ -187,7 +186,7 @@ def PMX(father1, father2):
 
 def cruzamento_dois_pais(pai1, pai2, taxa_cruzamento) -> tuple:
     # Verifica se o cruzamento deve ocorrer com base na taxa de cruzamento
-    if random() < taxa_cruzamento:
+    if random.random() < taxa_cruzamento:
         # Realiza o cruzamento PMX entre os pais para gerar dois filhos
         return PMX(pai1, pai2), PMX(pai2, pai1)
 
@@ -210,7 +209,7 @@ def evolucao(lista_populacao: List, numero_individuo: int, numero_geracoes: int,
     # Inicializa a variável para acompanhar o menor caminho encontrado
     menor_caminho = float('inf')
 
-    # Loop de evolução ao longo de um número fixo de gerações
+    # ‘Loop’ de evolução ao longo de um número fixo de gerações
     for geracao in range(numero_geracoes):
         # Calcula as distâncias de todas as rotas na população atual
         distancia = calcular_todas_distancias(populacao_inicial)
@@ -219,7 +218,7 @@ def evolucao(lista_populacao: List, numero_individuo: int, numero_geracoes: int,
         melhor_individuo = min(distancia)
 
         # Exibe informações sobre a geração atual
-        print(f'Geração: {geracao}ª Menor distância:', melhor_individuo)
+        # print(f'Geração: {geracao}ª Menor distância:', melhor_individuo)
 
         # Seleciona os pais com base na aptidão da população atual
         parentes = selecao_pais(populacao_inicial, aptidao(escala_apt(distancia)), sel_func)
@@ -246,9 +245,7 @@ def evolucao(lista_populacao: List, numero_individuo: int, numero_geracoes: int,
 
 lista = []
 a = 'berlin52.tsp'
-b = 'd198.tsp'
-c = 'bayg29.tsp'
-with open(c) as obj_file:
+with open(a) as obj_file:
     text = obj_file.readlines()
 
 for i, el in enumerate(text[6:-1]):
@@ -258,8 +255,9 @@ for i, el in enumerate(text[6:-1]):
             line.append(float(x))
     lista.append((line[1], line[2], str(int(line[0]))))
 
-ini = time.time()
+
 random.seed(0.4227137781497774)
+ini = time.time()
 evolucao(
     lista_populacao=lista,
     numero_individuo=80,
@@ -267,7 +265,6 @@ evolucao(
     taxa_cruzamento=0.8108250947136191,
     taxa_mutacao=0.07512625785937284,
     sel_func=torneio
-
 )
 fim = time.time()
 print("Tempo gasto:", round(fim - ini, 3))
